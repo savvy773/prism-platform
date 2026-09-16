@@ -1,12 +1,7 @@
-# Deployment
+# Deployment Operations
 
-Ubuntu 24.04 deployment procedures live here.
+The operator guide is [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md). Production configuration belongs in `environments/production/`; shared lifecycle helpers belong in `ops/scripts/`.
 
-Initial deployment should remain understandable and manual:
-1. clone or pull from GitHub
-2. prepare environment values
-3. validate Compose configuration
-4. start containers
-5. verify health and data flows
+Place deployment-specific scripts here when the first manual deployment is validated. Resolve paths from the repository location and require an explicit production target. CI/CD will follow a proven manual procedure.
 
-Automate with GitHub Actions only after the manual deployment process is proven.
+No deployment scripts are implemented yet.

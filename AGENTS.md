@@ -78,3 +78,19 @@ When introducing a new service:
 6. Keep production and development differences explicit.
 
 Never run destructive database reset operations against production.
+
+
+## Repository Ownership
+
+- `apps/portal/`: owned web UI, dashboards, and HTTP handlers
+- `packages/`: reusable UI and integration source
+- `services/`: ERPNext, wiki, and independent automation workers
+- `infra/`: shared infrastructure
+- `environments/development/`: WSL2 environment configuration
+- `environments/production/`: Ubuntu environment configuration
+- `ops/`: lifecycle, deployment, backup, and restore procedures
+- `tests/`: integration/E2E tests and synthetic fixtures
+
+Keep runtime definitions beside their owning module. Do not recreate duplicate ERPNext/wiki directories under `apps/`. Preserve independent module operation: stopping ERPNext must not stop wiki or unrelated databases. Document unavoidable shared dependencies.
+
+Use LF line endings. Resolve script paths from the repository rather than hard-coded host paths. Select environments and Docker targets explicitly; do not treat an environment variable alone as a production reset guard. Runtime implementation is pending; keep setup documentation honest about what is executable.

@@ -1,7 +1,7 @@
 # Reverse Proxy
 
-Central HTTP entry point for Prism services when multiple web applications need coordinated routing.
+Shared HTTP entry point for Prism services. Traefik is the preferred implementation, as recorded in `docs/STACK.md`.
 
-Initial development may expose services directly on local ports. Introduce the reverse proxy after core service and database flows are verified.
+Introduce it after core services and their data flows work. Keep routing configuration close to each module. Attach only web-facing endpoints to the shared routing network; databases stay on the networks of their consumers.
 
-Possible implementation: Nginx or Traefik. The choice is not frozen yet.
+Stopping ERPNext must not stop proxy routing to the wiki or portal. The proxy itself is shared infrastructure, so its outage affects all services accessed through it.

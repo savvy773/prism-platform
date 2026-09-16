@@ -1,47 +1,13 @@
 # Compose Assembly
 
-Docker Compose is the platform assembly layer.
+The planned root `compose.yaml` assembles modules using Compose `include`. Runtime definitions belong to their owner, for example `services/erpnext/compose.yaml`, `services/wiki/compose.yaml`, and `apps/portal/compose.yaml`.
 
-## Principle
+Environment overlays belong at `environments/development/compose.override.yaml` and `environments/production/compose.override.yaml`. These Compose files are not implemented yet. Add them with a working module, not empty service placeholders.
 
-Each replaceable module should own its runtime definition close to the module:
+Use unique service names in the assembled model and project-scoped storage/networks. Preserve module boundaries: wiki and portal must not depend on ERPNext's private database or Redis. Keep database services off shared ingress networks unless there is a specific need.
 
-```text
-services/erpnext/compose.yaml
-services/wiki/compose.yaml
-infra/postgres/compose.yaml
-infra/redis/compose.yaml
-infra/proxy/compose.yaml
-apps/portal/compose.yaml
-```
+Use profiles for optional tools, not required dependencies. Define module-level start/stop operations with explicit service lists so an ERP outage does not stop unrelated apps. Whole-project `down` removes the assembled project's containers and is not appropriate for stopping ERP alone.
 
-The root `compose.yaml` will use Compose `include` to assemble the enabled modules instead of duplicating every service in one giant file.
+Lifecycle scripts must explicitly select environment files, overlays, and the Docker target. Validate paths and merges with `docker compose config` when definitions exist; avoid emitting resolved secrets into logs.
 
-## Profiles
-
-Use profiles for optional concerns such as:
-- debug tools
-- database admin UI
-- local mail catcher
-- observability tools
-- optional wiki during focused ERP work
-
-Do not use profiles to hide essential dependencies that should always start together.
-
-## Environment overlays
-
-Prefer a small number of explicit environment overlays:
-- development defaults
-- production-safe overrides
-
-Avoid a large matrix of nearly identical Compose files.
-
-## Replacement workflow
-
-A replaceable service should be swappable by changing primarily:
-1. its module directory
-2. root Compose include/module selection
-3. reverse-proxy routing
-4. integration adapter/configuration
-
-The rest of the platform should remain structurally unchanged.
+A replacement should primarily affect the module directory, assembly, routing, and integration adapters. See [architecture](../../docs/ARCHITECTURE.md).

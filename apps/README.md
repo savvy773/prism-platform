@@ -1,11 +1,10 @@
 # Applications
 
-This directory contains user-facing or business-facing applications that make up Prism Platform.
+Prism-owned deployable applications live here.
 
-Planned application areas:
-- `erpnext/` — ERPNext/Frappe stack and Prism-specific ERP integration
-- `wiki/` — internal knowledge/wiki service
-- `dashboard/` — internal dashboard and portal UI
-- `integrations/` — adapters and integration code between applications
+Initial application:
+- `portal/` — internal entry point, dashboards, forms, and operational views
 
-Application directories should contain app-specific configuration and documentation. Shared databases, proxying, tunnel configuration, and operational scripts belong under `infra/` or `ops/`.
+Keep dashboards inside the portal until a separate deployment is justified. ERPNext and wiki belong in `services/`; reusable API adapters belong in `packages/integrations/`.
+
+Each app owns its source, tests, Dockerfile, and module Compose definition when implemented. Shared infrastructure belongs in `infra/`, operational procedures in `ops/`, and environment configuration in `environments/`.

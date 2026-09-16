@@ -1,100 +1,70 @@
 # Prism Platform - Architecture
 
-## High-Level Architecture
+## Hosts and delivery
 
 ```text
-Developer workstation
-Windows + WSL2
-        │
-        │ git push
-        ▼
-GitHub repository
-savvy773/prism-platform
-        │
-        │ clone / pull / later CI/CD
-        ▼
-Ubuntu 24.04 server
-        │
-        ▼
-Docker Compose
-        ├── ERPNext
-        ├── Wiki / Knowledge service
-        ├── Dashboard
-        ├── Database services
-        ├── Redis / cache / queue services
-        └── Reverse proxy
-                │
-                └── Cloudflare Tunnel (later)
+Windows PC → WSL2 development checkout → GitHub → Ubuntu deployment checkout
+                     prism-dev                      prism-prod
 ```
 
-## Repository Direction
+Both environments use the same Linux-compatible application source and service modules. Environment-specific configuration lives in `environments/development/` and `environments/production/`. See the root [directory map](../README.md) for the current layout.
 
-Expected top-level structure:
+## Ownership
+
+| Directory | Responsibility |
+| --- | --- |
+| `apps/portal/` | Prism-owned web UI, dashboards, forms, and HTTP handlers |
+| `packages/ui/` | Shared UI source |
+| `packages/integrations/` | Reusable API clients, adapters, and contracts |
+| `services/erpnext/` | ERPNext and its database, Redis, workers, and site files |
+| `services/wiki/` | Wiki product and its required storage/dependencies |
+| `services/automation/` | Independent browser automation workers |
+| `infra/` | Explicitly shared database, cache, routing, and ingress services |
+| `environments/` | Environment overlays and secret-free configuration examples |
+| `ops/` | Lifecycle, deployment, backup, and recovery procedures |
+| `tests/` | Cross-service verification and synthetic fixtures |
+
+Migrations, database initialization, Dockerfiles, and Compose definitions belong to the module that owns them. Add directories when their implementation is introduced.
+
+## Independent modules
 
 ```text
-prism-platform/
-├── AGENTS.md
-├── README.md
-├── compose.yml
-├── compose.dev.yml
-├── compose.prod.yml
-├── .env.example
-├── .gitignore
-├── apps/
-├── services/
-├── infra/
-├── scripts/
-└── docs/
-    ├── PROJECT_CONTEXT.md
-    ├── ARCHITECTURE.md
-    └── DECISIONS.md
+Shared reverse proxy
+├── Portal ── Prism PostgreSQL
+├── Wiki ──── Wiki storage/database
+└── ERPNext ─ ERP database + ERP Redis + ERP workers + site files
+
+Automation workers → APIs or browser sessions of target services
 ```
 
-The exact service split is intentionally not frozen yet. It will evolve as ERPNext, wiki, dashboard, database, cache, and proxy requirements become concrete.
+ERPNext must be stoppable without stopping the wiki, portal, or unrelated databases. Do not make their startup depend on ERPNext or share its internal database/Redis. Stopping ERPNext makes ERP-dependent requests and automation unavailable; clients must use bounded timeouts and report service unavailability without crashing unrelated pages.
 
-## Data Model Philosophy
+Treat ERPNext as a group of cooperating containers: stopping only its web process does not stop its scheduler or workers. Document exact Compose service names and the complete module stop/start procedure when its tested Compose definition is added.
 
-Development data is disposable unless a test explicitly requires persistence.
+A shared proxy remains a common dependency for routed HTTP access. A shared database remains a common dependency for its consumers. Container separation does not provide independent host availability: Docker daemon or host shutdown can affect every module.
 
-Production data is not disposable and must eventually have:
-- explicit persistent volumes
-- backups
-- restore procedures
-- migration procedures
-- access control
+## Compose assembly
 
-Development reset commands must be clearly separated from production operations.
+The planned root `compose.yaml` uses `include` to assemble module definitions close to their owners. Keep environment changes in `environments/<environment>/compose.override.yaml`, with a small number of explicit overrides. These files do not exist until runtime implementation begins.
 
-## Networking Direction
+Use unique service keys such as `erpnext-backend`, `erpnext-db`, `wiki-web`, and `prism-postgres` in the assembled model. These are naming examples, not implemented services. Define project-scoped networks per module and connect only required endpoints to shared routing. Avoid a universal network that exposes every database to every app.
 
-Prefer Docker internal networks for service-to-service communication.
+Lifecycle scripts must select the environment and Docker context deliberately. A module stop command must target that module's services; whole-project `down` is not a module stop command.
 
-Expose only the minimum host ports required during development.
+## Data and recovery
 
-Later, consolidate external HTTP/HTTPS entry through a reverse proxy and then Cloudflare Tunnel where appropriate.
+Development uses synthetic data and may be reset deliberately. Production databases and uploaded files require explicit persistent storage, backups, tested restores, and migration recovery procedures before real data is introduced.
 
-## Reverse Proxy
+Keep code/configuration edits in Git. Manual changes to a container's writable filesystem are not reproducible. Git does not back up runtime data or secrets.
 
-A reverse proxy such as Nginx may be introduced when multiple HTTP services need one controlled entry point.
+Use different Compose project names (`prism-dev`, `prism-prod`), credentials, and storage for each environment. Do not assign global volume names that bypass project scoping. Reset scripts must validate their target and refuse production; the `PRISM_ENV` variable alone is not enforcement.
 
-It is not necessary to complicate the earliest experiments with full external routing before core services and database flows are verified.
+## Networking and integration
 
-## Database Testing Requirement
+Use private Docker networks for service communication, minimum host ports, and loopback-only development database/debug access. Traefik is the preferred proxy from `STACK.md`; add Cloudflare Tunnel after local operation and recovery are proven.
 
-Database behavior must be observable, not assumed.
+Use APIs, webhooks, or explicit import/export contracts between products. Do not query another product's database as an application integration.
 
-For important workflows verify:
+## Verification
 
-```text
-Web form / import
-      ↓
-Application
-      ↓
-Database write
-      ↓
-Direct database verification
-      ↓
-Application read-back verification
-```
-
-Tests should cover successful writes, validation errors, duplicates, schema changes, and reset/rebuild behavior.
+For important workflows verify input, application validation, database write, and application read-back. Exercise container recreation separately from a destructive development reset. Verify that stopping ERPNext leaves a wiki read/write flow and an independent portal page working.

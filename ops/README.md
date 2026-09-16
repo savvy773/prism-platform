@@ -5,7 +5,7 @@ Operational workflows for creating, destroying, resetting, deploying, backing up
 Planned areas:
 - `scripts/` — local lifecycle commands such as up/down/reset/logs
 - `deploy/` — Ubuntu deployment procedures and later automation
-- `backup/` — backup definitions and scripts
+- `backup/` — working code-backup script; service-data backup procedures pending
 - `restore/` — restore procedures and verification
 - `monitoring/` — health/observability configuration when needed
 

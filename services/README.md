@@ -5,6 +5,7 @@ This directory contains deployable third-party or independently replaceable prod
 Examples:
 - `erpnext/` — ERPNext/Frappe application stack
 - `wiki/` — selected knowledge/wiki product
+- `automation/` — independently deployed Prism-owned Playwright worker, per ADR-008
 
 A service should be removable or replaceable without forcing structural changes across Prism-owned applications.
 

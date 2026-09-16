@@ -90,3 +90,24 @@ Use Playwright-based browser automation as a shared platform service rather than
 
 ### Reason
 Browser automation has different resource, security, retry, observability, and scaling characteristics from normal web applications. Isolation keeps application containers smaller and makes the automation engine independently replaceable and scalable.
+
+
+## ADR-009: One repository across WSL2 and Ubuntu
+
+**Status:** Accepted
+
+Develop on the Windows PC through WSL2 and deploy the same committed modules to Ubuntu. Keep host differences under `environments/development/` and `environments/production/`, with distinct project names, secrets, and storage. Root Compose assembly will include module-owned definitions when implemented.
+
+Use `apps/portal/` for the portal and dashboards; `services/erpnext/` and `services/wiki/` for vendor runtimes; and `packages/integrations/` for reusable adapters. Remove duplicate placeholder locations. Keep backup and restore procedures under `ops/` and runtime data outside Git.
+
+### Reason
+A single ownership location per component prevents drift between hosts and makes independent changes easier to review.
+
+## ADR-010: Independent module lifecycle
+
+**Status:** Accepted
+
+ERPNext must be stoppable with its private dependencies while wiki, portal, and unrelated databases remain operational. Keep private databases, Redis, networks, and workers within their module boundary. Module stop operations must target explicit services rather than the entire Compose project or Docker daemon.
+
+### Constraint
+Features that call a stopped module are unavailable and must fail gracefully. Shared infrastructure and the host remain common failure points; this design does not promise high availability.
