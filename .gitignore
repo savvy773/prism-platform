@@ -1,0 +1,24 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Runtime data
+*.log
+logs/
+data/
+backups/
+
+# Docker / local state
+.docker/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Python / Node common local artifacts
+__pycache__/
+*.py[cod]
+node_modules/
