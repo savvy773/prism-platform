@@ -72,3 +72,21 @@ After the deployment process is stable and understood, automate it with GitHub A
 Use `AGENTS.md` for persistent Codex instructions and `docs/` for longer-lived project context and architecture decisions.
 
 Chat conversations may guide decisions, but the repository documentation is the durable project memory.
+
+## ADR-008: Shared browser automation service
+
+**Status:** Accepted
+
+Use Playwright-based browser automation as a shared platform service rather than embedding the Playwright runtime into every application.
+
+### Direction
+- run business RPA in dedicated worker containers
+- expose automation through stable job/API contracts
+- keep app-specific flows separate from the execution engine
+- keep production RPA separate from Playwright E2E tests
+- prefer documented APIs when available
+- isolate automation credentials, logs, traces, screenshots, and downloaded artifacts
+- keep ERPNext-internal Redis separate from platform automation queues
+
+### Reason
+Browser automation has different resource, security, retry, observability, and scaling characteristics from normal web applications. Isolation keeps application containers smaller and makes the automation engine independently replaceable and scalable.
