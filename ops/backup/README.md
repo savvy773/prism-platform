@@ -11,7 +11,7 @@ Backups must be consistent across the database and related files. Do not assume 
 From the repository root, run:
 
 ```bash
-python3 ops/backup/backup-code.py
+python3 scripts/backup/backup-code.py
 ```
 
 This creates a timestamped `.tar.gz` archive and `.sha256` checksum in `/mnt/data/nas/backup/code`. It requires Python 3 and Git, and checks that `/mnt/data` is mounted before writing there. An alternate destination can be selected with `--destination /absolute/path`.

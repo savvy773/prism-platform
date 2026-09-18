@@ -1,0 +1,9 @@
+packages:
+  - apps/portal
+  - packages/ui
+  - packages/config
+allowBuilds:
+  esbuild: true
+  sharp: true
+minimumReleaseAgeExclude:
+  - lucide-react@1.47.0

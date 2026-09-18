@@ -10,7 +10,7 @@ Playwright is also used for application E2E testing, but E2E tests are intention
 - may run in CI
 - disposable test data
 
-`services/automation/`
+`apps/automation/`
 - performs business automation / RPA
 - may run on schedules or queues
 - uses production credentials only through runtime secret injection

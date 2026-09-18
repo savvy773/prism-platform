@@ -1,0 +1,16 @@
+services:
+  web-proxy:
+    ports:
+      - "127.0.0.1:18080:80"
+  erpnext-frontend:
+    ports:
+      - "127.0.0.1:18081:8080"
+  portal-web:
+    ports:
+      - "127.0.0.1:13000:3000"
+    volumes:
+      - ./docs:/workspace/docs:ro
+      - ./README.md:/workspace/README.md:ro
+      - ./apps/portal/src:/workspace/apps/portal/src:ro
+      - ./apps/portal/db:/workspace/apps/portal/db:ro
+      - ./packages/ui/src:/workspace/packages/ui/src:ro

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prism · 개발과 운영 접속 안내</title>
+  <link rel="stylesheet" href="../../packages/ui/src/styles/tokens.css">
+  <link rel="stylesheet" href="assets/plan.css">
+  <link rel="stylesheet" href="assets/guide.css">
+</head>
+<body>
+<header class="topbar"><a class="brand" href="access-guide.html"><span class="brand-mark">P</span> PRISM <span class="brand-caption">TEAM WIKI / ACCESS GUIDE</span></a><a href="structure-plan.html">구조 계획도 ↗</a></header>
+<main>
+  <section class="hero">
+    <div><p class="eyebrow">개발 · 테스트 · 배포 후 접속</p><h1>어디서 실행하고,<br>어디로 접속할까요?</h1><p class="hero-description">개발 PC는 <strong>prismjuns</strong>, Ubuntu 서버는 <strong>prismdev</strong>.<br>브라우저 주소로 환경을 구분합니다.</p></div>
+    <div class="principles"><div><span class="principle-number">01</span><p><strong>prismjuns · 현재 실행</strong><span>Windows + WSL · 포털과 ERPNext 연습</span></p></div><div><span class="principle-number">02</span><p><strong>prismdev · 배포 예정</strong><span>Ubuntu · SSH 별칭 su · 별도 운영 데이터</span></p></div><div><span class="principle-number">03</span><p><strong>localhost는 접속하는 기기 자신</strong><span>다른 PC에서 localhost를 쓰면 개발 PC에 연결되지 않습니다.</span></p></div></div>
+  </section>
+  <nav class="guide-nav" aria-label="안내 목차"><a href="#development">개발 접속</a><a href="#commands">자주 쓰는 명령</a><a href="#ports">포트표</a><a href="#updates">업데이트</a><a href="#production">배포 후 접속</a><a href="erpnext-handover.html">ERP 기술 인수인계 ↗</a><a href="#troubleshooting">접속이 안 될 때</a></nav>
+
+  <section class="workflow-block" id="development">
+    <div class="section-heading"><div><p class="eyebrow">01 / DEVELOPMENT · 현재</p><h2>WSL에서 실행 → 브라우저에서 확인</h2><p>개발 PC IPv4: 192.168.123.66 · 현재 사내망: 192.168.123.0/24</p></div><span class="badge">prismjuns · 실행 구성 완료</span></div>
+    <div class="reset-boundaries">
+      <article class="boundary-card"><span class="badge">개발 PC의 Windows 브라우저</span><h3>내 PC에서 접속</h3><div class="address-list"><a href="http://prismjuns/">포털 <code>http://prismjuns</code> ↗</a><a href="http://prismjuns:8080/">ERPNext <code>http://prismjuns:8080</code> ↗</a></div><p>같은 PC에서는 <a href="http://localhost/">http://localhost</a>와 <a href="http://localhost:8080/">http://localhost:8080</a>도 사용할 수 있습니다. 포털은 <a href="http://prismjuns:3000/">http://prismjuns:3000</a>으로도 접속할 수 있습니다.</p><p>Windows가 접속 포트를 받고 WSL의 로컬 포트로 전달합니다. 자기 PC와 사내망 기기에서 같은 주소를 사용할 수 있습니다.</p></article>
+      <article class="boundary-card"><span class="badge">같은 사내망의 다른 PC · 휴대폰</span><h3>다른 기기에서 접속</h3><div class="address-list"><a href="http://192.168.123.66/">포털 <code>http://192.168.123.66</code> ↗</a><a href="http://192.168.123.66:8080/">ERPNext <code>http://192.168.123.66:8080</code> ↗</a></div><p>기기에서 이름을 찾을 수 있으면 <code>http://prismjuns</code>도 됩니다. 이름 해석이 안 되면 위 IPv4 주소를 사용하세요. 포털은 <a href="http://192.168.123.66:3000/">http://192.168.123.66:3000</a>도 됩니다.</p><p>Windows·WSL 방화벽은 해당 사내망의 TCP 80·3000·8080을 허용합니다. DB 포트는 외부에 공개하지 않습니다. 인터넷 공개 주소는 아직 없습니다.</p></article>
+    </div>
+    <div class="workflow-strip"><div><span>1</span><b>브라우저</b><small>Windows / 사내 PC / 휴대폰</small></div><i>→</i><div><span>2</span><b>prismjuns</b><small>Windows · WSL 미러 네트워크</small></div><i>→</i><div><span>3</span><b>웹 앱</b><small>80·3000 → 포털 / 8080 → ERPNext</small></div><i>→</i><div><span>4</span><b>MariaDB</b><small>앱별 DB · 내부 연결</small></div></div>
+    <div class="notice"><span class="notice-symbol">i</span><p><strong>연습용 공간입니다.</strong> 포털은 아직 로그인 없이 기록을 공유합니다. ERPNext 계정은 <code>Administrator</code>이며, 비밀번호는 개발 PC의 <code>environments/development/apps/.env</code> 안 <code>ERP_ADMIN_PASSWORD</code>를 확인합니다. 비밀번호 자체를 위키나 이 페이지에 적지 않습니다.</p></div>
+  </section>
+
+  <section class="workflow-block" id="commands">
+    <div class="section-heading"><div><p class="eyebrow">02 / DAILY COMMANDS</p><h2>명령은 WSL 터미널에서.</h2><p><code>cd ~/code/prism-platform</code> 후 실행합니다. 스크립트는 루트 <code>scripts/</code>에 모았습니다.</p></div></div>
+    <div class="workflow-table-wrap" tabindex="0" role="region" aria-label="개발 명령 표"><table class="workflow-table"><thead><tr><th scope="col">명령</th><th scope="col">하는 일</th><th scope="col">데이터</th></tr></thead><tbody>
+      <tr><th scope="row"><code>make up</code></th><td>포털·ERPNext·프록시·MariaDB 전체 시작</td><td>기존 데이터 유지</td></tr>
+      <tr><th scope="row"><code>make down</code></th><td>개발 앱·DB 전체 중지</td><td>볼륨·데이터 유지</td></tr>
+      <tr><th scope="row"><code>make restart</code></th><td>개발 앱 재시작</td><td>기존 데이터 유지</td></tr>
+      <tr><th scope="row"><code>make urls</code></th><td>현재 접속 주소·포트 확인</td><td>변경 없음</td></tr>
+      <tr><th scope="row"><code>make dev</code></th><td>포털·웹 프록시·독립 MariaDB 실행</td><td>기존 데이터 유지</td></tr>
+      <tr><th scope="row"><code>make erp-demo</code></th><td>ERPNext 데모 실행 · 최초에만 사이트/샘플 생성</td><td>기존 사이트 유지</td></tr>
+      <tr><th scope="row"><code>make ps</code></th><td>실행 상태 확인</td><td>변경 없음</td></tr>
+      <tr><th scope="row"><code>make logs</code><br><code>make logs MODULE=erpnext</code></th><td>포털 / ERPNext 로그 확인 · Ctrl+C로 보기 종료</td><td>앱은 계속 실행</td></tr>
+      <tr><th scope="row"><code>make stop</code><br><code>make stop MODULE=erpnext</code></th><td>포털 / ERPNext만 중지</td><td>DB·데이터 유지</td></tr>
+      <tr><th scope="row"><code>make rebuild MODULE=portal</code></th><td>포털 이미지 빌드·컨테이너 교체</td><td>DB 데이터 유지</td></tr>
+      <tr><th scope="row"><code>make reset-dev MODULE=portal</code></th><td>포털 개발 기록을 지우고 샘플 재생성</td><td>ERPNext는 유지</td></tr>
+      <tr><th scope="row"><code>make reset-dev MODULE=erpnext</code></th><td>ERPNext 사이트·첨부파일·전용 큐 초기화 후 데모 재생성</td><td>포털은 유지 · 몇 분 소요</td></tr>
+      <tr><th scope="row"><code>make test</code></th><td>포털 타입·입력 검증 테스트</td><td>초기화하지 않음</td></tr>
+      <tr><th scope="row"><code>./scripts/git-mgr.sh</code><br><code>make save</code></th><td>현재 설정: 전체 변경 스테이징 → 시간 메시지로 커밋 → 푸시</td><td>앱 배포·DB 백업은 별도</td></tr>
+    </tbody></table></div>
+    <p class="workflow-caption">커밋만 따로 남기려면 <code>git add &lt;파일&gt;</code> → <code>git commit -m "메시지"</code>, 나중에 <code>git push</code>를 사용합니다. 개발 앱을 켠 뒤 터미널을 닫아도 컨테이너는 실행되지만 PC 절전·종료나 WSL 종료 시에는 접속할 수 없습니다.</p>
+  </section>
+
+  <section class="workflow-block" id="ports"><div class="section-heading"><div><p class="eyebrow">PORT MAP</p><h2>브라우저 포트와 내부 포트</h2></div></div><div class="workflow-table-wrap"><table class="workflow-table"><thead><tr><th>용도</th><th>Windows / 사내망</th><th>WSL → 컨테이너</th></tr></thead><tbody><tr><th>포털 · 공통 프록시</th><td>prismjuns:80</td><td>127.0.0.1:18080 → Traefik:80 → portal-web:3000</td></tr><tr><th>포털 · 개발 직접 접속</th><td>prismjuns:3000</td><td>127.0.0.1:13000 → portal-web:3000</td></tr><tr><th>ERPNext</th><td>prismjuns:8080</td><td>127.0.0.1:18081 → erpnext-frontend:8080</td></tr><tr><th>DB / Redis / ERP 내부</th><td>외부 공개 없음</td><td>MariaDB 3306 · Redis 각 6379 · backend 8000 · websocket 9000</td></tr><tr><th>향후 운영 HTTPS</th><td>도메인:443 · 계획</td><td>Cloudflare Tunnel → 공통 프록시 → 앱별 호스트 라우팅</td></tr></tbody></table></div><p class="workflow-caption">Windows portproxy가 사내망 요청을 WSL 로컬 포트로 전달합니다. VS Code가 표시하는 전달 포트 목록과 실제 Docker 공개 포트는 별개입니다. 서비스를 늘린다고 외부 포트를 모두 열 필요는 없습니다.</p></section>
+  <section class="workflow-block" id="updates"><div class="section-heading"><div><p class="eyebrow">KEEP CURRENT</p><h2>검증된 계열 안에서 최신으로.</h2></div></div><div class="reset-boundaries"><article class="boundary-card"><h3>조회 / 적용</h3><p><code>make check-updates</code> — 최신 호환 버전 조회</p><p><code>make update-stack</code> — 변경이 있으면 테스트·백업·이미지와 DB 마이그레이션·재시작. 잠시 서비스가 중단됩니다. 이미 최신이면 변경하지 않습니다.</p></article><article class="boundary-card"><h3>확장 계획과 인수인계</h3><p>최신 안정판과 지원되는 LTS를 버전 고정해 재현합니다. ERPNext가 지원하는 DB 계열을 유지합니다.</p><p><a href="erpnext-handover.html#upgrade">업데이트·백업·실패 대응</a> · <a href="../md/ROADMAP.md">프록시 교체·Cloudflare·운영 배포 계획</a></p></article></div></section>
+  <section class="workflow-block" id="production">
+    <div class="section-heading"><div><p class="eyebrow">03 / UBUNTU · 배포 후 계획</p><h2>prismdev에서 실제 서버 가동</h2><p>Ubuntu IP: 192.168.123.52 · SSH 접속: <code>ssh su</code></p></div><span class="badge planned">아직 배포하지 않음</span></div>
+    <div class="reset-boundaries">
+      <article class="boundary-card"><h3>배포 직후 사내 접속 계획</h3><ul><li><strong>포털</strong><span><code>http://prismdev</code> 또는 <code>http://192.168.123.52</code></span></li><li><strong>ERPNext</strong><span>별도 호스트명 또는 포트를 배포 시 확정합니다. 개발의 8080을 서버가 이미 사용한다는 뜻은 아닙니다.</span></li><li><strong>상시 운영</strong><span>로그인·권한, 재시작 정책, DB·첨부파일 백업·복구를 검증한 뒤 실제 업무 데이터를 사용합니다.</span></li></ul></article>
+      <article class="boundary-card"><h3>정식 운영 주소</h3><p>선택한 도메인의 HTTPS 주소를 공통 프록시로 연결합니다. 포털과 ERPNext의 호스트명·인증서·외부 접속 방식은 배포 단계에서 정합니다.</p><p>운영 코드는 이미지에 포함하고, 서버의 DB와 비밀 설정은 개발 PC와 별도로 둡니다. WSL 개발 DB를 서버에 덮어쓰지 않습니다.</p><p><code>make deploy REV=&lt;커밋&gt;</code>은 아직 구현 전입니다. 현재 <code>scripts/dev.py</code>는 운영 서버 실행·초기화를 거부합니다.</p></article>
+    </div>
+    <div class="workflow-strip"><div><span>1</span><b>prismjuns · WSL</b><small>개발 · 브라우저 테스트</small></div><i>→</i><div><span>2</span><b>GitHub</b><small>커밋 · 푸시</small></div><i>→</i><div><span>3</span><b>SSH su · prismdev</b><small>검증한 커밋 배포</small></div><i>→</i><div><span>4</span><b>사용자 브라우저</b><small>운영 서버 주소로 검증</small></div></div>
+  </section>
+
+  <section class="workflow-block" id="troubleshooting">
+    <div class="section-heading"><div><p class="eyebrow">04 / CONNECTION CHECK</p><h2>접속이 안 될 때, 이 순서로.</h2></div></div>
+    <ol class="guide-checks"><li><b>접속 대상 확인</b><p>개발은 prismjuns, 운영은 prismdev입니다. 다른 PC에서 localhost를 쓰고 있지 않은지 확인하세요.</p></li><li><b>앱 실행 확인</b><p>WSL에서 <code>make ps</code>. 필요하면 <code>make dev</code> 또는 <code>make erp-demo</code>. PC가 절전 상태인지도 확인합니다.</p></li><li><b>이름 대신 IP 사용</b><p>개발 포털은 <code>http://192.168.123.66</code>. IP는 되는데 이름만 안 되면 DNS/hosts 문제입니다. 공유기에서 IP가 바뀌면 이 안내와 개발 호스트 설정도 갱신해야 합니다.</p></li><li><b>같은 네트워크인지 확인</b><p>같은 사내망에 연결하세요. 게스트 Wi-Fi의 기기 격리나 VPN, 방화벽이 연결을 막을 수 있습니다. 재설정 절차는 <code>scripts/windows/enable-dev-lan.ps1</code>에 있습니다.</p></li><li><b>앱 응답과 로그 확인</b><p>포털 <code>/api/health</code>, ERPNext <code>:8080/api/method/ping</code>을 확인합니다. 접속 문제를 해결하기 위해 DB를 초기화할 필요는 없습니다.</p></li></ol>
+  </section>
+  <div class="notice"><span class="notice-symbol">W</span><p><strong>위키로 이어지는 안내</strong> 이 HTML의 설명 원문은 <a href="../md/ACCESS.md">ACCESS.md</a>입니다. 포털의 위키 기록에서도 접속 안내를 열 수 있습니다. 향후 위키 편집·권한 기능이 완성되면 팀 운영 문서로 확장합니다.</p></div>
+</main>
+<footer><span>PRISM / 접속 안내 · 현재 설정과 배포 계획을 구분합니다.</span><div><a href="structure-plan.html">구조 계획도</a><a href="../md/COMMANDS.md">명령 문서</a><a href="../md/DEPLOYMENT.md">배포 계획</a></div></footer>
+</body>
+</html>

@@ -1,0 +1,12 @@
+services:
+  web-proxy:
+    image: traefik:v3.7.13
+    command:
+      - --entrypoints.web.address=:80
+      - --providers.file.filename=/etc/traefik/dynamic.yaml
+      - --accesslog=true
+    volumes:
+      - ./dynamic.yaml:/etc/traefik/dynamic.yaml:ro
+    networks: [portal-http]
+networks:
+  portal-http:

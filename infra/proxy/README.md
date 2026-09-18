@@ -1,6 +1,6 @@
 # Reverse Proxy
 
-Shared HTTP entry point for Prism services. Traefik is the preferred implementation, as recorded in `docs/STACK.md`.
+Shared HTTP entry point for Prism services. Traefik is the preferred implementation, as recorded in `docs/md/STACK.md`.
 
 Introduce it after core services and their data flows work. Keep routing configuration close to each module. Attach only web-facing endpoints to the shared routing network; databases stay on the networks of their consumers.
 

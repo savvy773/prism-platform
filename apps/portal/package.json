@@ -1,0 +1,31 @@
+{
+  "name": "@prism/portal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "db": "tsx db/manage.ts"
+  },
+  "dependencies": {
+    "@prism/ui": "workspace:*",
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "mariadb": "3.5.4",
+    "lucide-react": "1.47.0",
+    "zod": "4.6.5",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@prism/config": "workspace:*",
+    "typescript": "7.0.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/node": "24.13.5",
+    "tsx": "4.23.13"
+  }
+}

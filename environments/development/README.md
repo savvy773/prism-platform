@@ -5,9 +5,14 @@ Run Git, package tools, and Docker Compose from WSL2. Store the checkout in the 
 Preparation from the repository root:
 
 ```bash
-cp -n environments/development/.env.example environments/development/.env
+cp -n environments/development/apps/.env.example environments/development/apps/.env
+cp -n environments/development/mariadb/.env.example environments/development/mariadb/.env
 ```
 
-Future development overrides belong in `compose.override.yaml`: source bind mounts, hot reload, and local debug ports. Bind database/admin ports to loopback when host access is necessary. Use synthetic fixtures and seeds that can recreate a useful test environment.
+Use `apps/` for source mounts, hot reload, and web/debug settings; `mariadb/` for
+the independent default DB stack; and `postgres/` for an optional PostgreSQL
+consumer. Copy the PostgreSQL example only when needed. Each component will have
+its own `compose.override.yaml` when implemented. Bind database/admin host ports
+to loopback and use synthetic fixtures. See [project names and networking](../README.md).
 
-The environment is not runnable yet. Follow [the development guide](../../docs/DEVELOPMENT.md) as service implementations are added.
+The environment is not runnable yet. Follow [the development guide](../../docs/md/DEVELOPMENT.md) as service implementations are added.

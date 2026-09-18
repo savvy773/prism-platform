@@ -10,4 +10,4 @@ Examples:
 
 Keep integration boundaries explicit. Prefer APIs and documented data contracts over direct cross-application database coupling.
 
-This is a source package, not a running service. HTTP webhook handlers belong in the consuming app; background job execution belongs in a worker such as `services/automation/`. Keep credentials in runtime configuration.
+This is a source package, not a running service. HTTP webhook handlers belong in the consuming app; background job execution belongs in a worker such as `apps/automation/`. Keep credentials in runtime configuration.

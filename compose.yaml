@@ -1,0 +1,4 @@
+include:
+  - apps/portal/compose.yaml
+  - apps/erpnext/compose.yaml
+  - infra/proxy/compose.yaml

@@ -1,0 +1,39 @@
+/* Local, shared Korean font: Pretendard 1.3.9, SIL Open Font License. */
+@font-face {
+  font-family: 'Pretendard Variable';
+  src: url('../fonts/PretendardVariable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+/* Shared Prism visual tokens. Framework-independent; docs use them today.
+   Application components can map these tokens to Tailwind when implemented. */
+:root {
+  color-scheme: light;
+  --prism-bg: #f3f5f4;
+  --prism-surface: #ffffff;
+  --prism-ink: #172e2b;
+  --prism-muted: #4e615b;
+  --prism-line: #dce4df;
+  --prism-primary: #17674f;
+  --prism-primary-soft: #e4f2ea;
+  --prism-accent: #d5ef91;
+  --prism-info: #3468b3;
+  --prism-info-soft: #eaf0fa;
+  --prism-warning: #955724;
+  --prism-warning-soft: #fbefe0;
+  --prism-danger: #ad443a;
+  --prism-radius-sm: 8px;
+  --prism-radius: 16px;
+  --prism-radius-lg: 24px;
+  --prism-space-1: 4px;
+  --prism-space-2: 8px;
+  --prism-space-3: 12px;
+  --prism-space-4: 16px;
+  --prism-space-6: 24px;
+  --prism-space-8: 32px;
+  --prism-shadow: 0 12px 38px rgb(24 49 41 / 6%);
+  --prism-font: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --prism-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --prism-motion: 160ms;
+}

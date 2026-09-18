@@ -1,0 +1,11 @@
+http:
+  routers:
+    portal:
+      entryPoints: [web]
+      rule: PathPrefix(`/`)
+      service: portal
+  services:
+    portal:
+      loadBalancer:
+        servers:
+          - url: http://portal-web:3000

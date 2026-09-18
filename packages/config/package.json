@@ -1,0 +1,8 @@
+{
+  "name": "@prism/config",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./typescript.json": "./typescript.json"
+  }
+}

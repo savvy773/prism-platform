@@ -1,0 +1,118 @@
+# Adapted from frappe/frappe_docker compose.yaml; pinned for the WSL demo.
+x-erp: &erp
+  image: frappe/erpnext:v16.35.0
+  profiles: [erpnext]
+  init: true
+  volumes:
+    - erp-sites:/home/frappe/frappe-bench/sites
+  networks: [erp-private, erp-maria]
+x-redis: &redis
+  image: redis:8.10.1-alpine
+  profiles: [erpnext]
+  networks: [erp-private]
+  healthcheck:
+    test: ["CMD", "redis-cli", "ping"]
+    interval: 5s
+    timeout: 3s
+    retries: 20
+services:
+  erpnext-configurator:
+    <<: *erp
+    entrypoint: ["bash", "-euc"]
+    command:
+      - |
+        ls -1 apps > sites/apps.txt
+        bench set-config -g db_host mariadb
+        bench set-config -gp db_port 3306
+        bench set-config -g redis_cache redis://erpnext-cache:6379
+        bench set-config -g redis_queue redis://erpnext-queue:6379
+        bench set-config -g redis_socketio redis://erpnext-queue:6379
+        bench set-config -gp socketio_port 9000
+        bench set-config -g chromium_path /usr/bin/chromium-headless-shell
+  erpnext-create-site:
+    <<: *erp
+    environment:
+      ERP_ADMIN_PASSWORD: ${ERP_ADMIN_PASSWORD:?Run make setup-dev}
+      SETUP_DB_PASSWORD: ${PRISM_SETUP_DB_PASSWORD:-}
+    entrypoint: ["bash", "-euc"]
+    command:
+      - |
+        if [ -f sites/erp.localhost/site_config.json ]; then
+          bench --site erp.localhost list-apps
+        else
+          bench new-site erp.localhost --db-name erpnext_demo --mariadb-user-host-login-scope='%' --admin-password "$$ERP_ADMIN_PASSWORD" --db-root-username root --db-root-password "$$SETUP_DB_PASSWORD" --install-app erpnext --set-default
+        fi
+  erpnext-backend:
+    <<: *erp
+    environment:
+      GUNICORN_WORKERS: "2"
+      GUNICORN_THREADS: "4"
+  erpnext-reset:
+    <<: *erp
+    environment:
+      ERP_ADMIN_PASSWORD: ${ERP_ADMIN_PASSWORD:?Run make setup-dev}
+      SETUP_DB_PASSWORD: ${PRISM_SETUP_DB_PASSWORD:-}
+      PRISM_ENV: ${PRISM_ENV:?Select development}
+    entrypoint: ["bash", "-euc"]
+    command:
+      - |
+        python - <<'PY'
+        import json, os
+        from pathlib import Path
+        site=Path('sites/erp.localhost')
+        config=json.loads((site/'site_config.json').read_text())
+        common=json.loads(Path('sites/common_site_config.json').read_text())
+        assert os.environ.get('PRISM_ENV') == 'development'
+        assert os.environ.get('PRISM_RESET_ALLOWED') == 'erpnext_demo'
+        assert config['db_name'] == 'erpnext_demo'
+        assert config.get('db_host',common.get('db_host')) == 'mariadb'
+        PY
+        bench --site erp.localhost reinstall --yes --admin-password "$$ERP_ADMIN_PASSWORD" --db-root-username root --db-root-password "$$SETUP_DB_PASSWORD"
+        python - <<'PY'
+        import shutil
+        from pathlib import Path
+        for directory in ('public/files','private/files'):
+            path=Path('sites/erp.localhost')/directory
+            if path.exists(): shutil.rmtree(path)
+            path.mkdir(parents=True)
+        PY
+  erpnext-frontend:
+    <<: *erp
+    command: ["nginx-entrypoint.sh"]
+    networks: [erp-private]
+    environment:
+      BACKEND: erpnext-backend:8000
+      SOCKETIO: erpnext-websocket:9000
+      FRAPPE_SITE_NAME_HEADER: erp.localhost
+      PROXY_READ_TIMEOUT: "120"
+      CLIENT_MAX_BODY_SIZE: 50m
+    depends_on: [erpnext-backend, erpnext-websocket]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/method/ping"]
+      interval: 15s
+      timeout: 10s
+      start_period: 30s
+      retries: 8
+  erpnext-websocket:
+    <<: *erp
+    command: ["node", "/home/frappe/frappe-bench/apps/frappe/socketio.js"]
+  erpnext-worker:
+    <<: *erp
+    command: ["bench", "worker", "--queue", "short,default,long"]
+  erpnext-scheduler:
+    <<: *erp
+    command: ["bench", "schedule"]
+  erpnext-cache:
+    <<: *redis
+  erpnext-queue:
+    <<: *redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [erp-queue:/data]
+volumes:
+  erp-sites:
+  erp-queue:
+networks:
+  erp-private:
+  erp-maria:
+    external: true
+    name: ${PRISM_MARIADB_NETWORK:?Select the database network}

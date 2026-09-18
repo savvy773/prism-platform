@@ -1,0 +1,28 @@
+services:
+  portal-web:
+    build:
+      context: ../..
+      dockerfile: apps/portal/Dockerfile
+    init: true
+    environment:
+      PRISM_ENV: ${PRISM_ENV:?Select the development environment}
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      DB_NAME: portal_db
+      DB_USER: portal
+      DB_PASSWORD: ${PORTAL_DB_PASSWORD:?Run make setup-dev}
+      TZ: Asia/Seoul
+      NEXT_TELEMETRY_DISABLED: "1"
+    networks:
+      - maria-data
+      - portal-http
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
+networks:
+  maria-data:
+    external: true
+    name: ${PRISM_MARIADB_NETWORK:?Select the database network}
